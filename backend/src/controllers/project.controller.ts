@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import { ProjectService } from '../services/project.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
@@ -15,6 +14,8 @@ import { UpdateProjectDto } from '../dto/update-project.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { PermissionsGuard } from '../guards/permissions.guard';
 import { RequirePermissions } from '../decorators/permissions.decorator';
+import { CurrentUser } from '../decorators/user.decorator';
+import { User } from '../entities/user.entity';
 
 @Controller('projects')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
@@ -23,20 +24,23 @@ export class ProjectController {
 
   @Post()
   @RequirePermissions({ resource: 'projects', action: 'create' })
-  create(@Body() createProjectDto: CreateProjectDto, @Request() req) {
-    return this.projectService.create(createProjectDto, req.user);
+  create(
+    @Body() createProjectDto: CreateProjectDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.projectService.create(createProjectDto, user);
   }
 
   @Get()
   @RequirePermissions({ resource: 'projects', action: 'read' })
-  findAll(@Request() req) {
-    return this.projectService.findAll(req.user);
+  findAll(@CurrentUser() user: User) {
+    return this.projectService.findAll(user);
   }
 
   @Get(':id')
   @RequirePermissions({ resource: 'projects', action: 'read' })
-  findOne(@Param('id') id: string, @Request() req) {
-    return this.projectService.findOne(+id, req.user);
+  findOne(@Param('id') id: string, @CurrentUser() user: User) {
+    return this.projectService.findOne(+id, user);
   }
 
   @Patch(':id')
@@ -44,14 +48,14 @@ export class ProjectController {
   update(
     @Param('id') id: string,
     @Body() updateProjectDto: UpdateProjectDto,
-    @Request() req,
+    @CurrentUser() user: User,
   ) {
-    return this.projectService.update(+id, updateProjectDto, req.user);
+    return this.projectService.update(+id, updateProjectDto, user);
   }
 
   @Delete(':id')
   @RequirePermissions({ resource: 'projects', action: 'delete' })
-  remove(@Param('id') id: string, @Request() req) {
-    return this.projectService.remove(+id, req.user);
+  remove(@Param('id') id: string, @CurrentUser() user: User) {
+    return this.projectService.remove(+id, user);
   }
 }
