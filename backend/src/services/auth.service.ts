@@ -13,7 +13,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(user: User) {
+  login(user: User) {
     const payload = {
       sub: user.id,
       email: user.email,
