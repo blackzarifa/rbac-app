@@ -10,6 +10,7 @@ import { Role } from '../entities/role.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 
+
 @Injectable()
 export class UserService {
   constructor(
@@ -18,6 +19,12 @@ export class UserService {
     @InjectRepository(Role)
     private roleRepository: Repository<Role>,
   ) {}
+
+  private stripPassword(user: User): Omit<User, 'password'> {
+    const { password, ...userWithoutPassword } = user;
+    void password;
+    return userWithoutPassword;
+  }
 
   async create(createUserDto: CreateUserDto) {
     const existingUser = await this.userRepository.findOne({
@@ -43,16 +50,14 @@ export class UserService {
     });
 
     const savedUser = await this.userRepository.save(user);
-    const { password, ...result } = savedUser;
-    return result;
+    return this.stripPassword(savedUser);
   }
 
   async findAll() {
-    const users = await this.userRepository.find({
+    return this.userRepository.find({
       relations: ['role'],
       select: ['id', 'email', 'createdAt', 'updatedAt'],
     });
-    return users;
   }
 
   async findOne(id: number) {
@@ -96,8 +101,7 @@ export class UserService {
 
     Object.assign(user, updateUserDto);
     const savedUser = await this.userRepository.save(user);
-    const { password, ...result } = savedUser;
-    return result;
+    return this.stripPassword(savedUser);
   }
 
   async remove(id: number) {
