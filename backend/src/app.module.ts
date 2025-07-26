@@ -8,6 +8,7 @@ import { HealthController } from './health.controller';
 import { AuthModule } from './modules/auth.module';
 import { ProjectModule } from './modules/project.module';
 import { TaskModule } from './modules/task.module';
+import { UserModule } from './users/user.module';
 import { User } from './entities/user.entity';
 import { Role } from './entities/role.entity';
 import { Project } from './entities/project.entity';
@@ -23,6 +24,7 @@ import { Task } from './entities/task.entity';
     AuthModule,
     ProjectModule,
     TaskModule,
+    UserModule,
   ],
   controllers: [HealthController],
 })
