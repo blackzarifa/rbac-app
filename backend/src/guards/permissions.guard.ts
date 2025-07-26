@@ -4,7 +4,7 @@ import {
   PERMISSIONS_KEY,
   RequiredPermission,
 } from '../decorators/permissions.decorator';
-import { User } from '../entities/user.entity';
+import { AuthRequest } from 'src/types/auth.types';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -19,7 +19,7 @@ export class PermissionsGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest<{ user: User }>();
+    const request = context.switchToHttp().getRequest<AuthRequest>();
     const user = request.user;
 
     if (!user || !user.role || !user.role.permissions) {
