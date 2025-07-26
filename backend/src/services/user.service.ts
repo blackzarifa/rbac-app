@@ -1,10 +1,14 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { Role } from '../entities/role.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto } from '../dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -17,7 +21,7 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto) {
     const existingUser = await this.userRepository.findOne({
-      where: { email: createUserDto.email }
+      where: { email: createUserDto.email },
     });
 
     if (existingUser) {
@@ -26,7 +30,7 @@ export class UserService {
 
     if (createUserDto.roleId) {
       const role = await this.roleRepository.findOne({
-        where: { id: createUserDto.roleId }
+        where: { id: createUserDto.roleId },
       });
       if (!role) {
         throw new NotFoundException(`Role #${createUserDto.roleId} not found`);
@@ -35,7 +39,7 @@ export class UserService {
 
     const user = this.userRepository.create({
       ...createUserDto,
-      roleId: createUserDto.roleId || 3
+      roleId: createUserDto.roleId || 3,
     });
 
     const savedUser = await this.userRepository.save(user);
@@ -46,7 +50,7 @@ export class UserService {
   async findAll() {
     const users = await this.userRepository.find({
       relations: ['role'],
-      select: ['id', 'email', 'createdAt', 'updatedAt']
+      select: ['id', 'email', 'createdAt', 'updatedAt'],
     });
     return users;
   }
@@ -55,7 +59,7 @@ export class UserService {
     const user = await this.userRepository.findOne({
       where: { id },
       relations: ['role'],
-      select: ['id', 'email', 'createdAt', 'updatedAt']
+      select: ['id', 'email', 'createdAt', 'updatedAt'],
     });
 
     if (!user) {
@@ -67,14 +71,14 @@ export class UserService {
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.findOne({ where: { id } });
-    
+
     if (!user) {
       throw new NotFoundException(`User #${id} not found`);
     }
 
     if (updateUserDto.email && updateUserDto.email !== user.email) {
       const existingUser = await this.userRepository.findOne({
-        where: { email: updateUserDto.email }
+        where: { email: updateUserDto.email },
       });
       if (existingUser) {
         throw new ConflictException('Email already in use');
@@ -83,7 +87,7 @@ export class UserService {
 
     if (updateUserDto.roleId) {
       const role = await this.roleRepository.findOne({
-        where: { id: updateUserDto.roleId }
+        where: { id: updateUserDto.roleId },
       });
       if (!role) {
         throw new NotFoundException(`Role #${updateUserDto.roleId} not found`);
