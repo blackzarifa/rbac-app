@@ -1,7 +1,6 @@
 import {
   Injectable,
   NotFoundException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -39,7 +38,7 @@ export class ProjectService {
     return query.getMany();
   }
 
-  async findOne(id: number, user: User) {
+  async findOne(id: number) {
     const project = await this.projectRepository.findOne({
       where: { id },
       relations: ['createdBy', 'tasks'],
@@ -53,13 +52,13 @@ export class ProjectService {
   }
 
   async update(id: number, updateProjectDto: UpdateProjectDto, user: User) {
-    const project = await this.findOne(id, user);
+    const project = await this.findOne(id);
     Object.assign(project, updateProjectDto);
     return this.projectRepository.save(project);
   }
 
   async remove(id: number, user: User) {
-    const project = await this.findOne(id, user);
+    const project = await this.findOne(id);
     return this.projectRepository.remove(project);
   }
 }
