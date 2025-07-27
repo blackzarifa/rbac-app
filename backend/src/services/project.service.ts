@@ -22,17 +22,10 @@ export class ProjectService {
     return this.projectRepository.save(project);
   }
 
-  async findAll(user: User) {
-    const query = this.projectRepository
-      .createQueryBuilder('project')
-      .leftJoinAndSelect('project.createdBy', 'createdBy')
-      .leftJoinAndSelect('project.tasks', 'tasks');
-
-    if (user.role.name === 'viewer') {
-      return query.getMany();
-    }
-
-    return query.getMany();
+  async findAll() {
+    return this.projectRepository.find({
+      relations: ['createdBy', 'tasks'],
+    });
   }
 
   async findOne(id: number) {
@@ -48,13 +41,13 @@ export class ProjectService {
     return project;
   }
 
-  async update(id: number, updateProjectDto: UpdateProjectDto, user: User) {
+  async update(id: number, updateProjectDto: UpdateProjectDto) {
     const project = await this.findOne(id);
     Object.assign(project, updateProjectDto);
     return this.projectRepository.save(project);
   }
 
-  async remove(id: number, user: User) {
+  async remove(id: number) {
     const project = await this.findOne(id);
     return this.projectRepository.remove(project);
   }

@@ -33,29 +33,25 @@ export class ProjectController {
 
   @Get()
   @RequirePermissions({ resource: 'projects', action: 'read' })
-  findAll(@CurrentUser() user: User) {
-    return this.projectService.findAll(user);
+  findAll() {
+    return this.projectService.findAll();
   }
 
   @Get(':id')
   @RequirePermissions({ resource: 'projects', action: 'read' })
-  findOne(@Param('id') id: string, @CurrentUser() user: User) {
-    return this.projectService.findOne(+id, user);
+  findOne(@Param('id') id: string) {
+    return this.projectService.findOne(+id);
   }
 
   @Patch(':id')
   @RequirePermissions({ resource: 'projects', action: 'update' })
-  update(
-    @Param('id') id: string,
-    @Body() updateProjectDto: UpdateProjectDto,
-    @CurrentUser() user: User,
-  ) {
-    return this.projectService.update(+id, updateProjectDto, user);
+  update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
+    return this.projectService.update(+id, updateProjectDto);
   }
 
   @Delete(':id')
   @RequirePermissions({ resource: 'projects', action: 'delete' })
-  remove(@Param('id') id: string, @CurrentUser() user: User) {
-    return this.projectService.remove(+id, user);
+  remove(@Param('id') id: string) {
+    return this.projectService.remove(+id);
   }
 }
