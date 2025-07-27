@@ -16,13 +16,13 @@ export class Project {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  @IsNotEmpty()
-  @MaxLength(255)
+  @Column({ length: 255 })
+  @IsNotEmpty({ message: 'Project name is required' })
+  @MaxLength(255, { message: 'Project name must not exceed 255 characters' })
   name: string;
 
   @Column({ type: 'text', nullable: true })
-  @MaxLength(1000)
+  @MaxLength(1000, { message: 'Description must not exceed 1000 characters' })
   description: string;
 
   @ManyToOne(() => User)
