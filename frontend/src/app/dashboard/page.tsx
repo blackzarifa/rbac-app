@@ -1,87 +1,80 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { useAuth } from '@/hooks/use-auth'
-import { projectService, Project } from '@/services/project.service'
-import { taskService, Task } from '@/services/task.service'
-import { userService } from '@/services/user.service'
-import { User } from '@/store/auth.store'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { FolderOpen, CheckSquare, Users, TrendingUp } from 'lucide-react'
-import { roleColors } from '@/lib/design-system'
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/hooks/use-auth';
+import { projectService, Project } from '@/services/project.service';
+import { taskService } from '@/services/task.service';
+import { userService } from '@/services/user.service';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { FolderOpen, CheckSquare, Users, TrendingUp } from 'lucide-react';
+import { roleColors } from '@/lib/design-system';
 
 interface DashboardStats {
-  totalProjects: number
-  totalTasks: number
-  completedTasks: number
-  totalUsers: number
+  totalProjects: number;
+  totalTasks: number;
+  completedTasks: number;
+  totalUsers: number;
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth()
+  const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalProjects: 0,
     totalTasks: 0,
     completedTasks: 0,
     totalUsers: 0,
-  })
-  const [recentProjects, setRecentProjects] = useState<Project[]>([])
-  const [loading, setLoading] = useState(true)
+  });
+  const [recentProjects, setRecentProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadDashboardData()
-  }, [])
+    loadDashboardData();
+  }, []);
 
   const loadDashboardData = async () => {
     try {
-      const [projects, tasks] = await Promise.all([
-        projectService.getAll(),
-        taskService.getAll(),
-      ])
+      const [projects, tasks] = await Promise.all([projectService.getAll(), taskService.getAll()]);
 
-      const completedTasks = tasks.filter(task => task.completed).length
-      
+      const completedTasks = tasks.filter(task => task.completed).length;
+
       setStats({
         totalProjects: projects.length,
         totalTasks: tasks.length,
         completedTasks,
         totalUsers: 0,
-      })
+      });
 
-      setRecentProjects(projects.slice(0, 5))
+      setRecentProjects(projects.slice(0, 5));
 
       if (user?.role.name === 'admin') {
-        const users = await userService.getAll()
-        setStats(prev => ({ ...prev, totalUsers: users.length }))
+        const users = await userService.getAll();
+        setStats(prev => ({ ...prev, totalUsers: users.length }));
       }
     } catch (error) {
-      console.error('Error loading dashboard data:', error)
+      console.error('Error loading dashboard data:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const getRoleBadgeProps = (role: string) => {
-    const colors = roleColors[role as keyof typeof roleColors]
+    const colors = roleColors[role as keyof typeof roleColors];
     return {
       className: colors?.badge || '',
       variant: 'outline' as const,
-    }
-  }
+    };
+  };
 
-  const taskCompletionRate = stats.totalTasks > 0 
-    ? Math.round((stats.completedTasks / stats.totalTasks) * 100)
-    : 0
+  const taskCompletionRate =
+    stats.totalTasks > 0 ? Math.round((stats.completedTasks / stats.totalTasks) * 100) : 0;
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
-          Bem-vindo ao Sistema RBAC
-        </p>
+        <p className="text-muted-foreground mt-2">Bem-vindo ao Sistema RBAC</p>
       </div>
 
       {/* User Info Card */}
@@ -98,21 +91,20 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Perfil</span>
-              <Badge {...getRoleBadgeProps(user?.role.name || '')}>
-                {user?.role.name}
-              </Badge>
+              <Badge {...getRoleBadgeProps(user?.role.name || '')}>{user?.role.name}</Badge>
             </div>
             <div className="space-y-2">
               <span className="text-sm font-medium">Permissões</span>
               <div className="flex flex-wrap gap-2">
-                {user?.role.permissions && Object.entries(user.role.permissions).map(([resource, actions]) => (
-                  <div key={resource} className="text-xs">
-                    <span className="font-medium">{resource}:</span>{' '}
-                    <span className="text-muted-foreground">
-                      {(actions as string[]).join(', ')}
-                    </span>
-                  </div>
-                ))}
+                {user?.role.permissions &&
+                  Object.entries(user.role.permissions).map(([resource, actions]) => (
+                    <div key={resource} className="text-xs">
+                      <span className="font-medium">{resource}:</span>{' '}
+                      <span className="text-muted-foreground">
+                        {(actions as string[]).join(', ')}
+                      </span>
+                    </div>
+                  ))}
               </div>
             </div>
           </div>
@@ -123,9 +115,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total de Projetos
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total de Projetos</CardTitle>
             <FolderOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -139,9 +129,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total de Tarefas
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total de Tarefas</CardTitle>
             <CheckSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -155,9 +143,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Taxa de Conclusão
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Taxa de Conclusão</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -172,9 +158,7 @@ export default function DashboardPage() {
         {user?.role.name === 'admin' && (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total de Usuários
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -203,15 +187,13 @@ export default function DashboardPage() {
             </div>
           ) : recentProjects.length > 0 ? (
             <div className="space-y-4">
-              {recentProjects.map((project) => (
+              {recentProjects.map(project => (
                 <div
                   key={project.id}
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
                   <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {project.name}
-                    </p>
+                    <p className="text-sm font-medium leading-none">{project.name}</p>
                     <p className="text-sm text-muted-foreground">
                       {project.description || 'Sem descrição'}
                     </p>
@@ -231,5 +213,5 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

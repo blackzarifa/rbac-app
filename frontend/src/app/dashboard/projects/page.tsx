@@ -1,21 +1,13 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { useAuth } from '@/hooks/use-auth'
-import { projectService, Project } from '@/services/project.service'
-import { taskService, Task } from '@/services/task.service'
-import { ProjectInput, projectSchema, TaskInput, taskSchema } from '@/schemas'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'sonner'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/hooks/use-auth';
+import { projectService, Project } from '@/services/project.service';
+import { taskService, Task } from '@/services/task.service';
+import { ProjectInput, projectSchema, TaskInput, taskSchema } from '@/schemas';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -23,7 +15,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,44 +25,41 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { 
-  Plus, 
-  Pencil, 
-  Trash2, 
-  FolderOpen,
-  CheckSquare,
-  Square,
-  Loader2
-} from 'lucide-react'
+} from '@/components/ui/alert-dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Pencil, Trash2, FolderOpen, CheckSquare, Square, Loader2 } from 'lucide-react';
 
 export default function ProjectsPage() {
-  const { user } = useAuth()
-  const [projects, setProjects] = useState<Project[]>([])
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false)
-  const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null)
-  const [editingProject, setEditingProject] = useState<Project | null>(null)
-  const [submitting, setSubmitting] = useState(false)
+  const { user } = useAuth();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
+  const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const canCreate = user?.role.permissions.projects?.includes('create')
-  const canUpdate = user?.role.permissions.projects?.includes('update')
-  const canDelete = user?.role.permissions.projects?.includes('delete')
-  const canCreateTask = user?.role.permissions.tasks?.includes('create')
-  const canUpdateTask = user?.role.permissions.tasks?.includes('update')
-  const canDeleteTask = user?.role.permissions.tasks?.includes('delete')
+  const canCreate = user?.role.permissions.projects?.includes('create');
+  const canUpdate = user?.role.permissions.projects?.includes('update');
+  const canDelete = user?.role.permissions.projects?.includes('delete');
+  const canCreateTask = user?.role.permissions.tasks?.includes('create');
+  const canUpdateTask = user?.role.permissions.tasks?.includes('update');
+  const canDeleteTask = user?.role.permissions.tasks?.includes('delete');
 
   const projectForm = useForm<ProjectInput>({
     resolver: zodResolver(projectSchema),
@@ -78,7 +67,7 @@ export default function ProjectsPage() {
       name: '',
       description: '',
     },
-  })
+  });
 
   const taskForm = useForm<TaskInput>({
     resolver: zodResolver(taskSchema),
@@ -87,151 +76,151 @@ export default function ProjectsPage() {
       completed: false,
       projectId: 0,
     },
-  })
+  });
 
   useEffect(() => {
-    loadProjects()
-  }, [])
+    loadProjects();
+  }, []);
 
   const loadProjects = async () => {
     try {
-      const data = await projectService.getAll()
-      setProjects(data)
+      const data = await projectService.getAll();
+      setProjects(data);
       if (data.length > 0 && !selectedProject) {
-        setSelectedProject(data[0])
+        setSelectedProject(data[0]);
       }
     } catch (error) {
-      toast.error('Erro ao carregar projetos')
+      toast.error('Erro ao carregar projetos');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleCreateProject = async (data: ProjectInput) => {
-    setSubmitting(true)
+    setSubmitting(true);
     try {
-      const newProject = await projectService.create(data)
-      setProjects([...projects, newProject])
-      setIsProjectDialogOpen(false)
-      projectForm.reset()
-      toast.success('Projeto criado com sucesso!')
-      setSelectedProject(newProject)
+      const newProject = await projectService.create(data);
+      setProjects([...projects, newProject]);
+      setIsProjectDialogOpen(false);
+      projectForm.reset();
+      toast.success('Projeto criado com sucesso!');
+      setSelectedProject(newProject);
     } catch (error) {
-      toast.error('Erro ao criar projeto')
+      toast.error('Erro ao criar projeto');
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   const handleUpdateProject = async (data: ProjectInput) => {
-    if (!editingProject) return
-    setSubmitting(true)
+    if (!editingProject) return;
+    setSubmitting(true);
     try {
-      const updated = await projectService.update(editingProject.id, data)
-      setProjects(projects.map(p => p.id === updated.id ? updated : p))
+      const updated = await projectService.update(editingProject.id, data);
+      setProjects(projects.map(p => (p.id === updated.id ? updated : p)));
       if (selectedProject?.id === updated.id) {
-        setSelectedProject(updated)
+        setSelectedProject(updated);
       }
-      setIsProjectDialogOpen(false)
-      setEditingProject(null)
-      projectForm.reset()
-      toast.success('Projeto atualizado com sucesso!')
+      setIsProjectDialogOpen(false);
+      setEditingProject(null);
+      projectForm.reset();
+      toast.success('Projeto atualizado com sucesso!');
     } catch (error) {
-      toast.error('Erro ao atualizar projeto')
+      toast.error('Erro ao atualizar projeto');
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   const handleDeleteProject = async () => {
-    if (!projectToDelete) return
+    if (!projectToDelete) return;
     try {
-      await projectService.delete(projectToDelete.id)
-      setProjects(projects.filter(p => p.id !== projectToDelete.id))
+      await projectService.delete(projectToDelete.id);
+      setProjects(projects.filter(p => p.id !== projectToDelete.id));
       if (selectedProject?.id === projectToDelete.id) {
-        setSelectedProject(projects[0] || null)
+        setSelectedProject(projects[0] || null);
       }
-      setIsDeleteDialogOpen(false)
-      setProjectToDelete(null)
-      toast.success('Projeto excluído com sucesso!')
+      setIsDeleteDialogOpen(false);
+      setProjectToDelete(null);
+      toast.success('Projeto excluído com sucesso!');
     } catch (error) {
-      toast.error('Erro ao excluir projeto')
+      toast.error('Erro ao excluir projeto');
     }
-  }
+  };
 
   const handleCreateTask = async (data: TaskInput) => {
-    if (!selectedProject) return
-    setSubmitting(true)
+    if (!selectedProject) return;
+    setSubmitting(true);
     try {
       const newTask = await taskService.create({
         ...data,
         projectId: selectedProject.id,
-      })
+      });
       const updatedProject = {
         ...selectedProject,
         tasks: [...selectedProject.tasks, newTask],
-      }
-      setProjects(projects.map(p => p.id === updatedProject.id ? updatedProject : p))
-      setSelectedProject(updatedProject)
-      setIsTaskDialogOpen(false)
-      taskForm.reset()
-      toast.success('Tarefa criada com sucesso!')
+      };
+      setProjects(projects.map(p => (p.id === updatedProject.id ? updatedProject : p)));
+      setSelectedProject(updatedProject);
+      setIsTaskDialogOpen(false);
+      taskForm.reset();
+      toast.success('Tarefa criada com sucesso!');
     } catch (error) {
-      toast.error('Erro ao criar tarefa')
+      toast.error('Erro ao criar tarefa');
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   const handleToggleTask = async (task: Task) => {
-    if (!canUpdateTask) return
+    if (!canUpdateTask) return;
     try {
       const updated = await taskService.update(task.id, {
         completed: !task.completed,
-      })
+      });
       if (selectedProject) {
         const updatedProject = {
           ...selectedProject,
-          tasks: selectedProject.tasks.map(t => t.id === updated.id ? updated : t),
-        }
-        setProjects(projects.map(p => p.id === updatedProject.id ? updatedProject : p))
-        setSelectedProject(updatedProject)
+          tasks: selectedProject.tasks.map(t => (t.id === updated.id ? updated : t)),
+        };
+        setProjects(projects.map(p => (p.id === updatedProject.id ? updatedProject : p)));
+        setSelectedProject(updatedProject);
       }
-      toast.success(updated.completed ? 'Tarefa concluída!' : 'Tarefa reaberta!')
+      toast.success(updated.completed ? 'Tarefa concluída!' : 'Tarefa reaberta!');
     } catch (error) {
-      toast.error('Erro ao atualizar tarefa')
+      toast.error('Erro ao atualizar tarefa');
     }
-  }
+  };
 
   const handleDeleteTask = async (taskId: number) => {
-    if (!canDeleteTask || !selectedProject) return
+    if (!canDeleteTask || !selectedProject) return;
     try {
-      await taskService.delete(taskId)
+      await taskService.delete(taskId);
       const updatedProject = {
         ...selectedProject,
         tasks: selectedProject.tasks.filter(t => t.id !== taskId),
-      }
-      setProjects(projects.map(p => p.id === updatedProject.id ? updatedProject : p))
-      setSelectedProject(updatedProject)
-      toast.success('Tarefa excluída com sucesso!')
+      };
+      setProjects(projects.map(p => (p.id === updatedProject.id ? updatedProject : p)));
+      setSelectedProject(updatedProject);
+      toast.success('Tarefa excluída com sucesso!');
     } catch (error) {
-      toast.error('Erro ao excluir tarefa')
+      toast.error('Erro ao excluir tarefa');
     }
-  }
+  };
 
   const openEditDialog = (project: Project) => {
-    setEditingProject(project)
+    setEditingProject(project);
     projectForm.reset({
       name: project.name,
       description: project.description || '',
-    })
-    setIsProjectDialogOpen(true)
-  }
+    });
+    setIsProjectDialogOpen(true);
+  };
 
   const openDeleteDialog = (project: Project) => {
-    setProjectToDelete(project)
-    setIsDeleteDialogOpen(true)
-  }
+    setProjectToDelete(project);
+    setIsDeleteDialogOpen(true);
+  };
 
   if (loading) {
     return (
@@ -239,7 +228,7 @@ export default function ProjectsPage() {
         <Skeleton className="h-10 w-48" />
         <Skeleton className="h-96 w-full" />
       </div>
-    )
+    );
   }
 
   return (
@@ -247,9 +236,7 @@ export default function ProjectsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Projetos</h1>
-          <p className="text-muted-foreground mt-2">
-            Gerencie seus projetos e tarefas
-          </p>
+          <p className="text-muted-foreground mt-2">Gerencie seus projetos e tarefas</p>
         </div>
         {canCreate && (
           <Button onClick={() => setIsProjectDialogOpen(true)}>
@@ -264,9 +251,7 @@ export default function ProjectsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Lista de Projetos</CardTitle>
-              <CardDescription>
-                Selecione um projeto para ver suas tarefas
-              </CardDescription>
+              <CardDescription>Selecione um projeto para ver suas tarefas</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
               {projects.length === 0 ? (
@@ -275,7 +260,7 @@ export default function ProjectsPage() {
                 </p>
               ) : (
                 <div className="divide-y">
-                  {projects.map((project) => (
+                  {projects.map(project => (
                     <div
                       key={project.id}
                       className={`p-4 cursor-pointer transition-colors hover:bg-accent ${
@@ -285,9 +270,7 @@ export default function ProjectsPage() {
                     >
                       <div className="flex items-start justify-between">
                         <div className="space-y-1 flex-1">
-                          <p className="text-sm font-medium leading-none">
-                            {project.name}
-                          </p>
+                          <p className="text-sm font-medium leading-none">{project.name}</p>
                           <p className="text-sm text-muted-foreground line-clamp-2">
                             {project.description || 'Sem descrição'}
                           </p>
@@ -303,9 +286,9 @@ export default function ProjectsPage() {
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  openEditDialog(project)
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  openEditDialog(project);
                                 }}
                               >
                                 <Pencil className="h-4 w-4" />
@@ -316,9 +299,9 @@ export default function ProjectsPage() {
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8 text-destructive hover:text-destructive"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  openDeleteDialog(project)
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  openDeleteDialog(project);
                                 }}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -350,8 +333,8 @@ export default function ProjectsPage() {
                     <Button
                       size="sm"
                       onClick={() => {
-                        taskForm.setValue('projectId', selectedProject.id)
-                        setIsTaskDialogOpen(true)
+                        taskForm.setValue('projectId', selectedProject.id);
+                        setIsTaskDialogOpen(true);
                       }}
                     >
                       <Plus className="mr-2 h-4 w-4" />
@@ -383,7 +366,7 @@ export default function ProjectsPage() {
                           Nenhuma tarefa encontrada
                         </p>
                       ) : (
-                        selectedProject.tasks.map((task) => (
+                        selectedProject.tasks.map(task => (
                           <TaskItem
                             key={task.id}
                             task={task}
@@ -396,28 +379,32 @@ export default function ProjectsPage() {
                       )}
                     </TabsContent>
                     <TabsContent value="pending" className="space-y-2">
-                      {selectedProject.tasks.filter(t => !t.completed).map((task) => (
-                        <TaskItem
-                          key={task.id}
-                          task={task}
-                          canUpdate={canUpdateTask}
-                          canDelete={canDeleteTask}
-                          onToggle={() => handleToggleTask(task)}
-                          onDelete={() => handleDeleteTask(task.id)}
-                        />
-                      ))}
+                      {selectedProject.tasks
+                        .filter(t => !t.completed)
+                        .map(task => (
+                          <TaskItem
+                            key={task.id}
+                            task={task}
+                            canUpdate={canUpdateTask}
+                            canDelete={canDeleteTask}
+                            onToggle={() => handleToggleTask(task)}
+                            onDelete={() => handleDeleteTask(task.id)}
+                          />
+                        ))}
                     </TabsContent>
                     <TabsContent value="completed" className="space-y-2">
-                      {selectedProject.tasks.filter(t => t.completed).map((task) => (
-                        <TaskItem
-                          key={task.id}
-                          task={task}
-                          canUpdate={canUpdateTask}
-                          canDelete={canDeleteTask}
-                          onToggle={() => handleToggleTask(task)}
-                          onDelete={() => handleDeleteTask(task.id)}
-                        />
-                      ))}
+                      {selectedProject.tasks
+                        .filter(t => t.completed)
+                        .map(task => (
+                          <TaskItem
+                            key={task.id}
+                            task={task}
+                            canUpdate={canUpdateTask}
+                            canDelete={canDeleteTask}
+                            onToggle={() => handleToggleTask(task)}
+                            onDelete={() => handleDeleteTask(task.id)}
+                          />
+                        ))}
                     </TabsContent>
                   </Tabs>
                 </div>
@@ -426,9 +413,7 @@ export default function ProjectsPage() {
           ) : (
             <Card>
               <CardContent className="flex items-center justify-center h-96">
-                <p className="text-muted-foreground">
-                  Selecione um projeto para ver suas tarefas
-                </p>
+                <p className="text-muted-foreground">Selecione um projeto para ver suas tarefas</p>
               </CardContent>
             </Card>
           )}
@@ -439,9 +424,7 @@ export default function ProjectsPage() {
       <Dialog open={isProjectDialogOpen} onOpenChange={setIsProjectDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {editingProject ? 'Editar Projeto' : 'Novo Projeto'}
-            </DialogTitle>
+            <DialogTitle>{editingProject ? 'Editar Projeto' : 'Novo Projeto'}</DialogTitle>
             <DialogDescription>
               {editingProject
                 ? 'Atualize as informações do projeto'
@@ -451,7 +434,7 @@ export default function ProjectsPage() {
           <Form {...projectForm}>
             <form
               onSubmit={projectForm.handleSubmit(
-                editingProject ? handleUpdateProject : handleCreateProject
+                editingProject ? handleUpdateProject : handleCreateProject,
               )}
               className="space-y-4"
             >
@@ -490,9 +473,9 @@ export default function ProjectsPage() {
                   type="button"
                   variant="outline"
                   onClick={() => {
-                    setIsProjectDialogOpen(false)
-                    setEditingProject(null)
-                    projectForm.reset()
+                    setIsProjectDialogOpen(false);
+                    setEditingProject(null);
+                    projectForm.reset();
                   }}
                 >
                   Cancelar
@@ -520,9 +503,7 @@ export default function ProjectsPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Nova Tarefa</DialogTitle>
-            <DialogDescription>
-              Adicione uma nova tarefa ao projeto
-            </DialogDescription>
+            <DialogDescription>Adicione uma nova tarefa ao projeto</DialogDescription>
           </DialogHeader>
           <Form {...taskForm}>
             <form onSubmit={taskForm.handleSubmit(handleCreateTask)} className="space-y-4">
@@ -544,8 +525,8 @@ export default function ProjectsPage() {
                   type="button"
                   variant="outline"
                   onClick={() => {
-                    setIsTaskDialogOpen(false)
-                    taskForm.reset()
+                    setIsTaskDialogOpen(false);
+                    taskForm.reset();
                   }}
                 >
                   Cancelar
@@ -572,14 +553,12 @@ export default function ProjectsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir o projeto "{projectToDelete?.name}"?
-              Esta ação não pode ser desfeita e todas as tarefas serão excluídas.
+              Tem certeza que deseja excluir o projeto "{projectToDelete?.name}"? Esta ação não pode
+              ser desfeita e todas as tarefas serão excluídas.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setProjectToDelete(null)}>
-              Cancelar
-            </AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setProjectToDelete(null)}>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteProject}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -590,37 +569,29 @@ export default function ProjectsPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }
 
 interface TaskItemProps {
-  task: Task
-  canUpdate: boolean
-  canDelete: boolean
-  onToggle: () => void
-  onDelete: () => void
+  task: Task;
+  canUpdate: boolean;
+  canDelete: boolean;
+  onToggle: () => void;
+  onDelete: () => void;
 }
 
 function TaskItem({ task, canUpdate, canDelete, onToggle, onDelete }: TaskItemProps) {
   return (
     <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors">
       <div className="flex items-center gap-3">
-        <button
-          onClick={onToggle}
-          disabled={!canUpdate}
-          className="focus:outline-none"
-        >
+        <button onClick={onToggle} disabled={!canUpdate} className="focus:outline-none">
           {task.completed ? (
             <CheckSquare className="h-5 w-5 text-primary" />
           ) : (
             <Square className="h-5 w-5 text-muted-foreground" />
           )}
         </button>
-        <span
-          className={`text-sm ${
-            task.completed ? 'line-through text-muted-foreground' : ''
-          }`}
-        >
+        <span className={`text-sm ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
           {task.title}
         </span>
       </div>
@@ -635,5 +606,5 @@ function TaskItem({ task, canUpdate, canDelete, onToggle, onDelete }: TaskItemPr
         </Button>
       )}
     </div>
-  )
+  );
 }
