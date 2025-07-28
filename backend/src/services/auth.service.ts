@@ -13,10 +13,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  login(user: User | null) {
-    if (!user) {
-      throw new Error('Could not find User');
-    }
+  login(user: User) {
 
     const payload = {
       sub: user.id,
@@ -54,6 +51,10 @@ export class AuthService {
       where: { id: savedUser.id },
       relations: ['role'],
     });
+
+    if (!userWithRole) {
+      throw new Error('Failed to retrieve user after creation');
+    }
 
     return this.login(userWithRole);
   }

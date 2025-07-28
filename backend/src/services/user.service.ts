@@ -19,9 +19,8 @@ export class UserService {
     private roleRepository: Repository<Role>,
   ) {}
 
-  private stripPassword(user: User): Omit<User, 'password'> {
-    const { password, ...userWithoutPassword } = user;
-    void password;
+  private stripPassword(user: User) {
+    const { password, hashPassword, validatePassword, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
 
