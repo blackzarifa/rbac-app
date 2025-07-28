@@ -13,7 +13,11 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  login(user: User) {
+  login(user: User | null) {
+    if (!user) {
+      throw new Error('Could not find User');
+    }
+
     const payload = {
       sub: user.id,
       email: user.email,
