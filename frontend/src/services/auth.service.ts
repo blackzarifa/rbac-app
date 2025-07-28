@@ -9,17 +9,14 @@ interface LoginResponse {
 
 export const authService = {
   async login(data: LoginInput): Promise<LoginResponse> {
-    const response = await api.post<LoginResponse>('/auth/login', data)
-    return response.data
+    return api.post<LoginResponse>('/auth/login', data)
   },
 
   async register(data: LoginInput & { roleId?: number }): Promise<LoginResponse> {
-    const response = await api.post<LoginResponse>('/auth/register', data)
-    return response.data
+    return api.post<LoginResponse>('/auth/register', data)
   },
 
   async getProfile(): Promise<User> {
-    const response = await api.get<User>('/auth/profile')
-    return response.data
+    return api.get<User>('/auth/profile')
   },
 }
