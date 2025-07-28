@@ -19,7 +19,12 @@ export class ProjectService {
       createdById: user.id,
     });
 
-    return this.projectRepository.save(project);
+    const savedProject = await this.projectRepository.save(project);
+    
+    return this.projectRepository.findOne({
+      where: { id: savedProject.id },
+      relations: ['createdBy', 'tasks'],
+    });
   }
 
   async findAll() {
@@ -44,7 +49,8 @@ export class ProjectService {
   async update(id: number, updateProjectDto: UpdateProjectDto) {
     const project = await this.findOne(id);
     Object.assign(project, updateProjectDto);
-    return this.projectRepository.save(project);
+    await this.projectRepository.save(project);
+    return this.findOne(id);
   }
 
   async remove(id: number) {

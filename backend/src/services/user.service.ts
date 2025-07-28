@@ -48,7 +48,14 @@ export class UserService {
     });
 
     const savedUser = await this.userRepository.save(user);
-    return this.stripPassword(savedUser);
+    
+    const userWithRelations = await this.userRepository.findOne({
+      where: { id: savedUser.id },
+      relations: ['role'],
+      select: ['id', 'email', 'createdAt', 'updatedAt'],
+    });
+    
+    return userWithRelations;
   }
 
   async findAll() {
@@ -98,8 +105,8 @@ export class UserService {
     }
 
     Object.assign(user, updateUserDto);
-    const savedUser = await this.userRepository.save(user);
-    return this.stripPassword(savedUser);
+    await this.userRepository.save(user);
+    return this.findOne(id);
   }
 
   async remove(id: number) {
