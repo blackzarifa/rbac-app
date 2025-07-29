@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { projectService, Project } from '@/services/project.service';
 import { taskService } from '@/services/task.service';
@@ -29,11 +29,7 @@ export default function DashboardPage() {
   const [recentProjects, setRecentProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       const [projects, tasks] = await Promise.all([projectService.getAll(), taskService.getAll()]);
 
@@ -57,7 +53,11 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.role.name]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   const getRoleBadgeProps = (role: string) => {
     const colors = roleColors[role as keyof typeof roleColors];
