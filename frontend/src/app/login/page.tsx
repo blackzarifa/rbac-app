@@ -48,8 +48,8 @@ export default function LoginPage() {
       login(response.user, response.access_token);
       toast.success('Login realizado com sucesso!');
       router.push('/dashboard');
-    } catch (error: any) {
-      const message = error?.message || 'Erro ao fazer login';
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Erro ao fazer login';
       toast.error(Array.isArray(message) ? message[0] : message);
     } finally {
       setIsLoading(false);

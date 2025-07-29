@@ -119,7 +119,7 @@ export default function UsersPage() {
     try {
       const data = await userService.getAll();
       setUsers(data);
-    } catch (error) {
+    } catch {
       toast.error('Erro ao carregar usuários');
     } finally {
       setLoading(false);
@@ -134,8 +134,8 @@ export default function UsersPage() {
       setIsDialogOpen(false);
       form.reset();
       toast.success('Usuário criado com sucesso!');
-    } catch (error: any) {
-      const message = error?.message || 'Erro ao criar usuário';
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Erro ao criar usuário';
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -146,7 +146,7 @@ export default function UsersPage() {
     if (!editingUser) return;
     setSubmitting(true);
     try {
-      const updateData: any = { roleId: data.roleId };
+      const updateData: Partial<UserInput> = { roleId: data.roleId };
       if (data.email !== editingUser.email) {
         updateData.email = data.email;
       }
@@ -160,8 +160,8 @@ export default function UsersPage() {
       setEditingUser(null);
       form.reset();
       toast.success('Usuário atualizado com sucesso!');
-    } catch (error: any) {
-      const message = error?.message || 'Erro ao atualizar usuário';
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Erro ao atualizar usuário';
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -181,7 +181,7 @@ export default function UsersPage() {
       setIsDeleteDialogOpen(false);
       setUserToDelete(null);
       toast.success('Usuário excluído com sucesso!');
-    } catch (error) {
+    } catch {
       toast.error('Erro ao excluir usuário');
     }
   };
@@ -308,7 +308,6 @@ export default function UsersPage() {
         </CardContent>
       </Card>
 
-      {/* User Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -412,13 +411,12 @@ export default function UsersPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir o usuário "{userToDelete?.email}"? Esta ação não pode
+              Tem certeza que deseja excluir o usuário &quot;{userToDelete?.email}&quot;? Esta ação não pode
               ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
