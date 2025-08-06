@@ -1,22 +1,16 @@
-# Development Dockerfile - optimized for Next.js hot reload
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Install pnpm
 RUN npm install -g pnpm
 
-# Copy package files
 COPY package.json pnpm-lock.yaml ./
-
-# Install all dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy configuration files
-COPY next.config.ts tsconfig.json postcss.config.mjs components.json ./
+COPY next.config.ts tsconfig.json postcss.config.mjs components.json tailwind.config.ts ./
+COPY src ./src
+COPY public ./public
 
-# Expose port
 EXPOSE 3000
 
-# Run in development mode with hot reload
 CMD ["pnpm", "run", "dev"]
