@@ -1,10 +1,10 @@
 import { Controller, Post, Body, UseGuards, Get } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
+import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { CurrentUser } from '../decorators/user.decorator';
 import { User } from '../entities/user.entity';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -15,7 +15,7 @@ export class AuthController {
     return this.authService.register(createUserDto);
   }
 
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(LocalAuthGuard)
   @Post('login')
   login(@CurrentUser() user: User) {
     return this.authService.login(user);
