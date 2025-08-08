@@ -16,7 +16,7 @@ interface JwtPayload {
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private configService: ConfigService,
+    configService: ConfigService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {
@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!jwtSecret) {
       throw new Error('JWT_SECRET must be defined');
     }
-    
+
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
