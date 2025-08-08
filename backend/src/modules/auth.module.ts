@@ -16,11 +16,11 @@ import { Role } from '../entities/role.entity';
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
         signOptions: { expiresIn: configService.get('JWT_EXPIRATION', '24h') },
       }),
-      inject: [ConfigService],
     }),
   ],
   controllers: [AuthController],
