@@ -7,11 +7,17 @@ export async function seedUsers(dataSource: DataSource) {
   const roleRepository = dataSource.getRepository(Role);
 
   const adminRole = await roleRepository.findOne({ where: { name: 'admin' } });
-  const editorRole = await roleRepository.findOne({ where: { name: 'editor' } });
-  const viewerRole = await roleRepository.findOne({ where: { name: 'viewer' } });
+  const editorRole = await roleRepository.findOne({
+    where: { name: 'editor' },
+  });
+  const viewerRole = await roleRepository.findOne({
+    where: { name: 'viewer' },
+  });
 
   if (!adminRole || !editorRole || !viewerRole) {
-    throw new Error('Required roles not found. Make sure roles are seeded first.');
+    throw new Error(
+      'Required roles not found. Make sure roles are seeded first.',
+    );
   }
 
   const users = [
