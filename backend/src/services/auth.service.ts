@@ -13,8 +13,33 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  login(user: User) {
+  async register(createUserDto: CreateUserDto) {
+    const existingUser = await this.userRepository.findOne({
+      where: { email: createUserDto.email },
+    });
+    if (existingUser) {
+      throw new Error('User already exists');
+    }
 
+    const user = this.userRepository.create({
+      ...createUserDto,
+      roleId: createUserDto.roleId || 3,
+    });
+
+    const savedUser = await this.userRepository.save(user);
+
+    const userWithRole = await this.userRepository.findOne({
+      where: { id: savedUser.id },
+      relations: ['role'],
+    });
+    if (!userWithRole) {
+      throw new Error('Failed to retrieve user after creation');
+    }
+
+    return this.login(userWithRole);
+  }
+
+  login(user: User) {
     const payload = {
       sub: user.id,
       email: user.email,
@@ -30,32 +55,5 @@ export class AuthService {
         role: user.role,
       },
     };
-  }
-
-  async register(createUserDto: CreateUserDto) {
-    const existingUser = await this.userRepository.findOne({
-      where: { email: createUserDto.email },
-    });
-
-    if (existingUser) {
-      throw new Error('User already exists');
-    }
-
-    const user = this.userRepository.create({
-      ...createUserDto,
-      roleId: createUserDto.roleId || 3,
-    });
-
-    const savedUser = await this.userRepository.save(user);
-    const userWithRole = await this.userRepository.findOne({
-      where: { id: savedUser.id },
-      relations: ['role'],
-    });
-
-    if (!userWithRole) {
-      throw new Error('Failed to retrieve user after creation');
-    }
-
-    return this.login(userWithRole);
   }
 }
